@@ -1,12 +1,19 @@
 package org.daisy.pipeline.braille.tex;
 
-import org.daisy.pipeline.braille.common.Translator;
+import java.net.URI;
 
-public interface TexHyphenator extends Translator {
+import org.daisy.pipeline.braille.common.Hyphenator;
+
+public abstract class TexHyphenator implements Hyphenator {
 	
-	/**
-	 * @param text The text to be hyphenated.
-	 */
-	public String hyphenate(String text);
+	public String transform(String text) {
+		return hyphenate(text);
+	}
+	
+	public String[] transform(String[] text) {
+		return hyphenate(text);
+	}
+	
+	public abstract URI asTexHyphenatorTable();
 	
 }

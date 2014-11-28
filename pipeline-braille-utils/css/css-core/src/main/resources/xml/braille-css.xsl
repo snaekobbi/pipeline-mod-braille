@@ -49,8 +49,8 @@
                  'counter-increment',
                  'content',
                  'white-space',
+                 'hyphens',
                  'size',
-                 'typeform-indication',
                  'font-style',
                  'font-weight',
                  'text-decoration',
@@ -87,8 +87,8 @@
                  re:exact(re:or(('none',re:space-separated($css:COUNTER_SET_PAIR_RE)))),
                  re:exact(re:or(('none',$css:CONTENT_LIST_RE))),
                  re:exact(re:or(('default','pre'))),
+                 re:exact(re:or(('auto','manual','none'))),
                  re:exact(concat('(',$css:NON_NEGATIVE_INTEGER_RE,')\s+(',$css:NON_NEGATIVE_INTEGER_RE,')')),
-                 re:exact(re:or(($css:IDENT_LIST_RE,'none'))),
                  re:exact(re:or(('normal','italic','oblique'))),
                  re:exact(re:or(('normal','bold','100','200','300','400','500','600','700','800','900'))),
                  re:exact(re:or(('none','underline','overline','line-through','blink'))),
@@ -125,8 +125,8 @@
                  '.*',
                  '^(::before|::after|@top-left|@top-center|@top-right|@bottom-left|@bottom-center|@bottom-right)$',
                  '.*',
-                 '^@page$',
                  '.*',
+                 '^@page$',
                  '.*',
                  '.*',
                  '.*',
@@ -163,8 +163,8 @@
                  'none',
                  'none',
                  'default',
+                 'manual',
                  '40 25',
-                 'none',
                  'normal',
                  'normal',
                  'none',
@@ -339,7 +339,7 @@
         <xsl:variable name="system" as="xs:string" select="$text-transform[1]/@value"/>
         <xsl:choose>
             <xsl:when test="$system='translator'">
-                <xsl:value-of select="pf:translate($text-transform[2]/@value, string(.))"/>
+                <xsl:value-of select="pf:text-transform($text-transform[2]/@value, string(.))"/>
             </xsl:when>
             <xsl:when test="$system='prefix'">
                 <xsl:value-of select="$text-transform[2]/@value"/>
