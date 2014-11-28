@@ -107,7 +107,7 @@
     </x:expect>
   </x:scenario>
   
-  <x:scenario label="test_02" pending="failure">
+  <x:scenario label="test_02" pending="in liblouis implementation running headers/footers are better centered">
     <x:call step="dotify:format">
       <x:input port="source">
         <x:document type="inline">
@@ -261,7 +261,7 @@
     </x:expect>
   </x:scenario>
   
-  <x:scenario label="test_03" pending="failure">
+  <x:scenario label="test_03">
     <x:call step="dotify:format">
       <x:input port="source">
         <x:document type="inline">
@@ -549,7 +549,7 @@
     </x:expect>
   </x:scenario>
   
-  <x:scenario label="test_05" pending="failure">
+  <x:scenario label="test_05" pending="roman numbers are not translated">
     <x:call step="dotify:format">
       <x:input port="source">
         <x:document type="inline">
@@ -696,7 +696,7 @@
     </x:expect>
   </x:scenario>
   
-  <x:scenario label="test_06" pending="failure">
+  <x:scenario label="test_06">
     <x:call step="dotify:format">
       <x:input port="source">
         <x:document type="inline">
@@ -757,7 +757,7 @@
             </meta>
           </head>
           <body>
-            <volume rows="5" cols="15" rowgap="0" duplex="true">
+            <volume rows="5" cols="15" rowgap="0" duplex="false">
               <section>
                 <page>
                   <row>⠤⠤⠤</row>
@@ -774,7 +774,7 @@
     </x:expect>
   </x:scenario>
   
-  <x:scenario label="test_08" pending="failure">
+  <x:scenario label="test_08" pending="keep doesn't work, keep-with-next doesn't work, and orphans is not implemented">
     <x:call step="dotify:format">
       <x:input port="source">
         <x:document type="inline">
@@ -987,7 +987,7 @@
     </x:expect>
   </x:scenario>
   
-  <x:scenario label="test_09" pending="failure">
+  <x:scenario label="test_09" pending="margins are not collapsed">
     <x:call step="dotify:format">
       <x:input port="source">
         <x:document type="inline">
@@ -1141,7 +1141,7 @@
     </x:expect>
   </x:scenario>
   
-  <x:scenario label="test_10" pending="failure">
+  <x:scenario label="test_10">
     <x:call step="dotify:format">
       <x:input port="source">
         <x:document type="inline">
@@ -1174,7 +1174,10 @@
           </layout-master>
           <sequence master="body">
             <block>
-              ⠤⠤⠤⠆⠀⠤⠤⠤⠆⠀⠤⠤⠤⠆⠀⠤⠤⠤
+                  ⠤⠤⠤⠆
+                  ⠤⠤⠤⠆
+                  ⠤⠤⠤⠆
+                  ⠤⠤⠤
             </block>
           </sequence>
         </obfl>
