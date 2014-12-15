@@ -20,6 +20,7 @@
     
     <xsl:variable name="css:properties" as="xs:string*"
         select="('display',
+                 'flow',
                  'left',
                  'right',
                  'margin-left',
@@ -58,6 +59,7 @@
     
     <xsl:variable name="css:values" as="xs:string*"
         select="(re:exact(re:or(('block','inline','list-item','none','page-break'))),
+                 re:exact(re:space-separated($css:IDENT_RE)),
                  re:exact(re:or(($css:NON_NEGATIVE_INTEGER_RE,'auto'))),
                  re:exact(re:or(($css:NON_NEGATIVE_INTEGER_RE,'auto'))),
                  re:exact($css:INTEGER_RE),
@@ -96,6 +98,7 @@
     
     <xsl:variable name="css:applies-to" as="xs:string*"
         select="('.*',
+                 '.*',
                  '^(block|list-item)$',
                  '^(block|list-item)$',
                  '^(block|list-item)$',
@@ -134,6 +137,7 @@
     
     <xsl:variable name="css:initial-values" as="xs:string*"
         select="('inline',
+                 'normal',
                  'auto',
                  'auto',
                  '0',
@@ -172,6 +176,7 @@
     
     <xsl:variable name="css:media" as="xs:string*"
         select="('embossed',
+                 'embossed',
                  'embossed',
                  'embossed',
                  'embossed',

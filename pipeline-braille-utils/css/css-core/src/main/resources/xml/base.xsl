@@ -129,7 +129,14 @@
     <xsl:variable name="css:LEADER_FN_RE" select="concat('leader\(\s*(',$css:BRAILLE_STRING_RE,')\s*\)')"/>
     
     <!--
-        # groups: 51
+        flow(<ident>)
+        # groups: 3
+        $1: <ident>
+    -->
+    <xsl:variable name="css:FLOW_FN_RE" select="concat('flow\(\s*(',$css:IDENT_RE,')\s*\)')"/>
+    
+    <!--
+        # groups: 55
         $1: <string>
         $2: content()
         $3: attr(<name>)
@@ -150,6 +157,8 @@
         $47:                              <counter-style>
         $50: leader(<braille-string>)
         $51:        <braille-string>
+        $52: flow(<ident>)
+        $53:      <ident>
     -->
     <xsl:variable name="css:CONTENT_RE" select="concat('(',$css:STRING_RE,')|
                                                         (',$css:CONTENT_FN_RE,')|
@@ -159,7 +168,8 @@
                                                         (',$css:TARGET_TEXT_FN_RE,')|
                                                         (',$css:TARGET_STRING_FN_RE,')|
                                                         (',$css:TARGET_COUNTER_FN_RE,')|
-                                                        (',$css:LEADER_FN_RE,')')"/>
+                                                        (',$css:LEADER_FN_RE,')|
+                                                        (',$css:FLOW_FN_RE,')')"/>
     
     <!--
         # groups: ?
@@ -186,17 +196,27 @@
     <xsl:variable name="css:DECLARATION_LIST_RE">([^'"\{\}]+|'[^']*'|"[^"]*")*</xsl:variable>
     
     <!--
-        # groups: 8
-        $2: selector
-        $6: declaration list
+        # groups: 3
+        $1: flow name
     -->
-    <xsl:variable name="css:RULE_RE" select="concat('(((@|::)',$css:IDENT_RE,')\s+)?\{(
-                                                       (
-                                                         ',$css:DECLARATION_LIST_RE,'
+    <xsl:variable name="css:FLOW_SELECTOR_RE" select="concat(':flow\((',$css:IDENT_RE,')\)')"/>
+    
+    <!--
+        # groups: 14
+        $2: selector
+        $10: declaration list
+    -->
+    <xsl:variable name="css:RULE_RE" select="concat('(((@|::)(',$css:IDENT_RE,')
+                                                       |
+                                                       ',$css:FLOW_SELECTOR_RE,'
+                                                      )\s+
+                                                     )?
+                                                     \{((',$css:DECLARATION_LIST_RE,'
                                                          |
                                                          \{(',$css:DECLARATION_LIST_RE,')\}
-                                                       )*
-                                                     )\}')"/>
+                                                        )*
+                                                       )
+                                                     \}')"/>
     
     <!-- ======= -->
     <!-- Parsing -->
@@ -237,7 +257,7 @@
                         <xsl:if test="regex-group(1)!=''">
                             <xsl:attribute name="selector" select="regex-group(2)"/>
                         </xsl:if>
-                        <xsl:attribute name="declaration-list" select="replace(regex-group(6), '(^\s+|\s+$)', '')"/>
+                        <xsl:attribute name="declaration-list" select="replace(regex-group(10), '(^\s+|\s+$)', '')"/>
                     </xsl:element>
                 </xsl:matching-substring>
             </xsl:analyze-string>
@@ -334,6 +354,12 @@
                         <xsl:when test="regex-group(50)!=''">
                             <css:leader pattern="{substring(regex-group(51), 2, string-length(regex-group(51))-2)}"/>
                         </xsl:when>
+                        <!--
+                            flow(<ident>)
+                        -->
+                        <xsl:when test="regex-group(52)!=''">
+                            <css:flow from="{regex-group(53)}"/>
+                        </xsl:when>
                     </xsl:choose>
                 </xsl:matching-substring>
             </xsl:analyze-string>
@@ -386,8 +412,9 @@
         <xsl:param name="context" as="element()"/>
         <xsl:choose>
             <xsl:when test="@value='inherit' and $concretize-inherit">
-                <xsl:sequence select="if ($context/parent::*)
-                                      then css:specified-properties(@name, true(), $concretize-initial, $validate, $context/parent::*)
+                <xsl:variable name="parent" as="element()?" select="$context/ancestor::*[not(self::css:* except self::css:box)][1]"/>
+                <xsl:sequence select="if ($parent)
+                                      then css:specified-properties(@name, true(), $concretize-initial, $validate, $parent)
                                       else css:property(@name, 'initial')"/>
             </xsl:when>
             <xsl:otherwise>

@@ -44,11 +44,12 @@
 	
 	<x:scenario label="test_04">
 		<x:call function="css:parse-stylesheet">
-			<x:param select="'@page { size: 40 25;}   {display:block}'"/>
+			<x:param select="'@page { size: 40 25;}   {display:block}  :flow(footnote) { display:list-item }'"/>
 		</x:call>
 		<x:expect label="result">
 			<css:rule selector="@page" declaration-list="size: 40 25;"/>
 			<css:rule declaration-list="display:block"/>
+			<css:rule selector=":flow(footnote)" declaration-list="display:list-item"/>
 		</x:expect>
 	</x:scenario>
 	
