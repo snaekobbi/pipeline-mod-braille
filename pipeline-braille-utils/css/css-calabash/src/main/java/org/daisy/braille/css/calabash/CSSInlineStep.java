@@ -1,14 +1,19 @@
 package org.daisy.braille.css.calabash;
 
+import java.io.ByteArrayInputStream;
 import java.net.URL;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
 
 import com.google.common.base.Function;
@@ -18,6 +23,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 
 import com.xmlcalabash.core.XProcException;
+import com.xmlcalabash.core.XProcConstants;
 import com.xmlcalabash.core.XProcRuntime;
 import com.xmlcalabash.core.XProcStep;
 import com.xmlcalabash.io.ReadablePipe;
@@ -25,6 +31,8 @@ import com.xmlcalabash.io.WritablePipe;
 import com.xmlcalabash.library.DefaultStep;
 import com.xmlcalabash.model.RuntimeValue;
 import com.xmlcalabash.runtime.XAtomicStep;
+import com.xmlcalabash.util.Base64;
+import com.xmlcalabash.util.S9apiUtils;
 import com.xmlcalabash.util.TreeWriter;
 
 import cz.vutbr.web.css.CSSFactory;
@@ -52,6 +60,9 @@ import net.sf.saxon.om.NodeInfo;
 import net.sf.saxon.s9api.QName;
 import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.XdmNode;
+import net.sf.saxon.s9api.XPathCompiler;
+import net.sf.saxon.s9api.XPathSelector;
+
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.tree.util.NamespaceIterator;
 
@@ -80,6 +91,7 @@ import org.slf4j.LoggerFactory;
 public class CSSInlineStep extends DefaultStep {
 	
 	private ReadablePipe sourcePipe = null;
+	private ReadablePipe contextPipe = null;
 	private WritablePipe resultPipe = null;
 	
 	private static final QName _default_stylesheet = new QName("default-stylesheet");
@@ -90,7 +102,10 @@ public class CSSInlineStep extends DefaultStep {
 	
 	@Override
 	public void setInput(String port, ReadablePipe pipe) {
-		sourcePipe = pipe;
+		if ("source".equals(port))
+			sourcePipe = pipe;
+		else
+			contextPipe = pipe;
 	}
 	
 	@Override
@@ -111,6 +126,7 @@ public class CSSInlineStep extends DefaultStep {
 			XdmNode source = sourcePipe.read();
 			Document doc = (Document)DocumentOverNodeInfo.wrap(source.getUnderlyingNode());
 			URL defaultSheet = asURL(emptyToNull(getOption(_default_stylesheet, "")));
+			inMemoryResolver.setResolver(new InMemoryURIResolver(contextPipe, runtime));
 			resultPipe.write((new InlineCSSWriter(doc, runtime, defaultSheet)).getResult()); }
 		catch (Exception e) {
 			logger.error("css:inline failed", e);
@@ -120,7 +136,7 @@ public class CSSInlineStep extends DefaultStep {
 	@Component(
 		name = "css:inline",
 		service = { XProcStepProvider.class },
-		property = { "type:String={http://www.daisy.org/ns/pipeline/braille-css}inline" }
+		property = { "type:String={http://www.daisy.org/ns/pipeline/xproc/internal}css-inline" }
 	)
 	public static class Provider implements XProcStepProvider {
 		
@@ -136,9 +152,82 @@ public class CSSInlineStep extends DefaultStep {
 			cardinality = ReferenceCardinality.MANDATORY,
 			policy = ReferencePolicy.STATIC
 		)
-		public void setUriResolver(URIResolver resolver) {
-			CSSFactory.registerURIResolver(resolver);
+		public void setURIResolver(URIResolver resolver) {
+			defaultResolver.setResolver(resolver);
 		}
+	}
+	
+	private static final ProxyURIResolver inMemoryResolver = new ProxyURIResolver();
+	private static final ProxyURIResolver defaultResolver = new ProxyURIResolver();
+	static {
+		CSSFactory.registerURIResolver(fallback(inMemoryResolver, defaultResolver));
+	}
+	
+	private static final QName c_encoding = new QName("c", XProcConstants.NS_XPROC_STEP, "encoding");
+	private static final QName _content_type = new QName("content-type");
+	
+	private static class InMemoryURIResolver implements URIResolver {
+		private final XPathCompiler xpathCompiler;
+		private final ReadablePipe documents;
+		private InMemoryURIResolver(ReadablePipe documents, XProcRuntime runtime) {
+			this.documents = documents;
+			xpathCompiler = runtime.getProcessor().newXPathCompiler();
+		}
+		public Source resolve(String href, String base) throws TransformerException {
+			if (documents == null) return null;
+			try {
+				URI uri = (base != null) ?
+					new URI(base).resolve(new URI(href)) :
+					new URI(href);
+				XPathSelector selector = xpathCompiler.compile("base-uri(/*)='" + uri.toASCIIString() + "'").load();
+				documents.resetReader();
+				while (documents.moreDocuments()) {
+					XdmNode doc = documents.read();
+					selector.setContextItem(doc);
+					if (selector.effectiveBooleanValue()) {
+						XdmNode root = S9apiUtils.getDocumentElement(doc);
+						if (XProcConstants.c_result.equals(root.getNodeName())
+						    && root.getAttributeValue(_content_type) != null
+						    && root.getAttributeValue(_content_type).startsWith("text/"))
+							return new StreamSource(new ByteArrayInputStream(doc.getStringValue().getBytes()),
+							                        uri.toASCIIString());
+						else if ("base64".equals(root.getAttributeValue(c_encoding)))
+							return new StreamSource(new ByteArrayInputStream(Base64.decode(doc.getStringValue())),
+							                        uri.toASCIIString());
+						else
+							return doc.asSource(); }}}
+			catch (URISyntaxException e) {
+				e.printStackTrace();
+				throw new TransformerException(e); }
+			catch (SaxonApiException e) {
+				e.printStackTrace();
+				throw new TransformerException(e); }
+			return null;
+		}
+	}
+	
+	private static class ProxyURIResolver implements URIResolver {
+		private URIResolver resolver;
+		private void setResolver(URIResolver resolver) {
+			this.resolver = resolver;
+		}
+		public Source resolve(String href, String base) throws TransformerException {
+			if (resolver == null) return null;
+			return resolver.resolve(href, base);
+		}
+	}
+	
+	private static URIResolver fallback(final URIResolver... resolvers) {
+		return new URIResolver() {
+			public Source resolve(String href, String base) throws TransformerException {
+				Iterator<URIResolver> iterator = Iterators.<URIResolver>forArray(resolvers);
+				while (iterator.hasNext()) {
+					Source source = iterator.next().resolve(href, base);
+					if (source != null)
+						return source; }
+				return null;
+			}
+		};
 	}
 	
 	private static final QName _style = new QName("style");
@@ -158,7 +247,10 @@ public class CSSInlineStep extends DefaultStep {
 			CSSFactory.registerSupportedCSS(supportedCSS);
 			CSSFactory.registerDeclarationTransformer(new BrailleCSSDeclarationTransformer());
 			
-			URI baseURI = new URI(document.getBaseURI());
+			// get base URI of document element instead of document because
+			// unzipped files have an empty base URI, but an xml:base
+			// attribute may have been added to their document element
+			URI baseURI = new URI(document.getDocumentElement().getBaseURI());
 			
 			// media embossed
 			supportedCSS.setSupportedMedia("embossed");
