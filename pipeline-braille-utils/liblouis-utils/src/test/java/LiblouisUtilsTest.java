@@ -62,7 +62,6 @@ public class LiblouisUtilsTest {
 			brailleModule("css-calabash"),
 			brailleModule("css-utils"),
 			forThisPlatform(brailleModule("liblouis-native")),
-			thisBundle(true),
 			xspecBundles(),
 			junitBundles()
 		);
