@@ -53,6 +53,7 @@ public class PxTransformStep extends Eval {
 	private static final QName _name = new QName("name");
 	private static final QName _namespace = new QName("namespace");
 	private static final QName _value = new QName("value");
+	private static final QName _detailed = new QName("detailed");
 	
 	private PxTransformStep(XProcRuntime runtime, XAtomicStep step, Provider<String,XProcTransform> provider) {
 		super(runtime, step);
@@ -82,6 +83,7 @@ public class PxTransformStep extends Eval {
 	
 	private void setup() {
 		if (!setup) {
+			setOption(_detailed, new RuntimeValue("true"));
 			String query = getOption(_query).getString();
 			final String type = getOption(_type, "#any");
 			XProcTransform transform;
@@ -152,7 +154,7 @@ public class PxTransformStep extends Eval {
 	@Component(
 		name = "px:transform",
 		service = { XProcStepProvider.class },
-		property = { "type:String={http://www.daisy.org/ns/pipeline/xproc}transform" }
+		property = { "type:String={http://www.daisy.org/ns/pipeline/xproc/internal}transform" }
 	)
 	public static class StepProvider implements XProcStepProvider {
 		
