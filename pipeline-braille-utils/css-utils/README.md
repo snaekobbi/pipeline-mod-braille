@@ -14,11 +14,13 @@ Building blocks related to [Braille CSS][braillecss].
 - `css:eval-counter`
 - `css:eval-string-set`
 - `css:eval-target-text`
+- `css:flow-into`
 - `css:inline`: Inline a CSS stylesheet in XML.
 - `css:label-targets`
 - `css:make-anonymous-block-boxes`
 - `css:make-anonymous-inline-boxes`
 - `css:make-boxes`
+- `css:make-flow-elements`
 - `css:make-pseudo-elements`
 - `css:new-definition`
 - `css:padding-to-margin`

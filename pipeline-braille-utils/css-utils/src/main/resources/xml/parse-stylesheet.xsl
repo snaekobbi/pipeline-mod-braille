@@ -21,7 +21,10 @@
     </xsl:template>
     
     <xsl:template match="css:rule">
-        <xsl:attribute name="css:{replace(@selector, '^(@|::)', '')}" select="@declaration-list"/>
+        <xsl:attribute name="css:{replace(replace(@selector,
+                                                  '^(@|::)', ''),
+                                                  '^:flow\(((\p{L}|_)(\p{L}|_|-)*)\)$', 'flow-$1')}"
+                       select="@declaration-list"/>
     </xsl:template>
     
 </xsl:stylesheet>

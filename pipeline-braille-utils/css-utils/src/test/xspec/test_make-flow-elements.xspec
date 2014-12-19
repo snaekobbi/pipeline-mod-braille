@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<x:description xmlns:x="http://www.jenitennison.com/xslt/xspec"
+               xmlns:css="http://www.daisy.org/ns/pipeline/braille-css"
+               stylesheet="../../main/resources/xml/make-flow-elements.xsl">
+  
+  <x:scenario label="test_01">
+    <x:context>
+      <body>
+        <note css:flow="normal footnote"
+              style="display:inline; content:counter(footnote)"
+              css:flow-footnote="display:list-item"
+              css:before="content:'*'"> foo </note>
+      </body>
+    </x:context>
+    <x:expect label="result">
+      <body>
+        <note style="display:inline; content:counter(footnote)"
+              css:before="content:'*'"
+              css:id="..."> foo </note>
+        <note style="display:list-item"
+              css:flow="footnote"
+              css:anchor="..."> foo </note>
+      </body>
+    </x:expect>
+  </x:scenario>
+  
+</x:description>

@@ -9,10 +9,12 @@
     <p:import href="eval-counter.xpl"/>
     <p:import href="eval-string-set.xpl"/>
     <p:import href="eval-target-text.xpl"/>
+    <p:import href="flow-into.xpl"/>
     <p:import href="label-targets.xpl"/>
     <p:import href="make-anonymous-block-boxes.xpl"/>
     <p:import href="make-anonymous-inline-boxes.xpl"/>
     <p:import href="make-boxes.xpl"/>
+    <p:import href="make-flow-elements.xpl"/>
     <p:import href="make-pseudo-elements.xpl"/>
     <p:import href="new-definition.xpl"/>
     <p:import href="padding-to-margin.xpl"/>

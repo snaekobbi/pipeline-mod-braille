@@ -18,13 +18,14 @@
     
     <p:output port="result">
         <p:documentation>
-            Elements in the output will get a css:* attribute for each pseudo-element rule or
-            at-rule in the element's style attribute. For example, the rule `@page { size: 40 25 }'
-            becomes the attribute css:page="size: 40 25", and the rule `::before { content: '⠶' }'
-            becomes the attribute css:before="content: '⠶'". Any attributes in the input with the
-            same name will be overwritten. Only properties defined on the element itself will be
-            retained in the style attribute, as a simple declaration list. The style attribute is
-            dropped when empty.
+            Elements in the output will get a css:* attribute for each pseudo-element or at-rule in
+            the element's style attribute. For example, the rule `@page { size: 40 25 }' becomes the
+            attribute css:page="size: 40 25", the rule `::before { content: '⠶' }' becomes the
+            attribute css:before="content: '⠶'", and the rule `:flow(footnote) { content: content()
+            }' becomes the attribute css:flow-footnote="content: content()". Any attributes in the
+            input with the same name will be overwritten. Only properties defined on the element
+            itself will be retained in the style attribute, as a simple declaration list. The style
+            attribute is dropped when empty.
         </p:documentation>
     </p:output>
     

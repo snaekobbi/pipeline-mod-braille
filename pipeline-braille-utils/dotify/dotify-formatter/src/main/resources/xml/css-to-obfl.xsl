@@ -15,7 +15,7 @@
     
     <xsl:include href="generate-obfl-layout-master.xsl"/>
     
-    <xsl:key name="page-style" match="/css:root" use="string(@css:page)"/>
+    <xsl:key name="page-style" match="/*" use="string(@css:page)"/>
     
     <xsl:function name="pxi:generate-layout-master-name" as="xs:string">
         <xsl:param name="stylesheet" as="xs:string"/>
@@ -24,27 +24,33 @@
     
     <xsl:template name="main">
         <obfl version="2011-1" xml:lang="und">
-            <xsl:for-each select="distinct-values(collection()/css:root/string(@css:page))">
+            <xsl:for-each select="distinct-values(collection()/*/string(@css:page))">
                 <xsl:sequence select="obfl:generate-layout-master(., pxi:generate-layout-master-name(.))"/>
             </xsl:for-each>
-            <xsl:apply-templates select="collection()/css:root"/>
+            <xsl:apply-templates select="collection()/*[not(@css:flow)]"/>
         </obfl>
     </xsl:template>
     
-    <xsl:template match="/css:root">
+    <xsl:template match="/*" priority="0.6">
         <xsl:element name="sequence">
             <xsl:attribute name="master" select="pxi:generate-layout-master-name(string(@css:page))"/>
-            <xsl:apply-templates select="(@* except @css:page)|node()"/>
+            <xsl:if test="@css:counter-set-page">
+                <xsl:attribute name="initial-page-number" select="@css:counter-set-page"/>
+            </xsl:if>
+            <xsl:next-match/>
         </xsl:element>
     </xsl:template>
     
-    <xsl:template match="/css:root/@css:counter-set-page">
-        <xsl:attribute name="initial-page-number" select="."/>
+    <xsl:template match="/*/@css:counter-set-page|
+                         /*/@css:page"/>
+    
+    <xsl:template match="/css:_">
+        <xsl:apply-templates select="@*|node()"/>
     </xsl:template>
     
     <xsl:template match="css:box[@type='block']">
         <block>
-            <xsl:apply-templates select="@* except (@type|@name|@part|@css:string-entry|@css:string-set)"/>
+            <xsl:apply-templates select="@* except (@css:string-entry|@css:string-set)"/>
             <xsl:apply-templates select="@css:string-entry"/>
             <xsl:apply-templates select="@css:string-set"/>
             <xsl:apply-templates/>
@@ -52,11 +58,15 @@
     </xsl:template>
     
     <xsl:template match="css:box[@type='inline']">
-        <xsl:apply-templates select="@* except (@type|@name|@part|@css:string-entry|@css:string-set)"/>
+        <xsl:apply-templates select="@* except (@css:string-entry|@css:string-set)"/>
         <xsl:apply-templates select="@css:string-entry"/>
         <xsl:apply-templates select="@css:string-set"/>
         <xsl:apply-templates/>
     </xsl:template>
+    
+    <xsl:template match="css:box/@type|
+                         css:box/@name|
+                         css:box/@part"/>
     
     <xsl:template match="@css:collapsing-margins"/>
     
@@ -178,7 +188,10 @@
     </xsl:template>
     
     <xsl:template match="css:box/@css:id">
-        <xsl:attribute name="id" select="."/>
+        <xsl:variable name="id" as="xs:string" select="."/>
+        <xsl:if test="collection()//css:counter[@target=$id]">
+            <xsl:attribute name="id" select="$id"/>
+        </xsl:if>
     </xsl:template>
     
     <xsl:template match="css:box/@css:string-entry|

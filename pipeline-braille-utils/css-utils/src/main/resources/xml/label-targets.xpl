@@ -14,7 +14,8 @@
     <p:input port="source" sequence="true">
         <p:documentation>
             target-text(), target-string() and target-counter() values must be represented with
-            css:text, css:string and css:counter elements in the input.
+            css:text, css:string and css:counter elements with a target attribute. css:flow
+            attributes indicate in which named flow elements are channeled.
         </p:documentation>
     </p:input>
     
@@ -22,7 +23,8 @@
         <p:documentation>
             For each element that is referenced somewhere, a css:id attribute that matches the
             xml:id or id attribute of the element is added in the output. No two elements will get
-            the same css:id attribute.
+            the same css:id attribute. css:id attributes already present in the input may be
+            overwritten. Elements that are being channeled into a named flow will not be labeled.
         </p:documentation>
     </p:output>
     
@@ -37,7 +39,8 @@
         </p:input>
     </p:xslt>
     
-    <p:delete match="@css:id[string(.)=parent::*/(ancestor::*|preceding::*)/@css:id/string()]"/>
+    <p:delete match="@css:_id_[not(string(.)=(//css:text|//css:string|//css:counter)/@target/string())]"/>
+    <p:rename match="@css:_id_" new-name="css:id"/>
     
     <p:filter select="/_/*"/>
     

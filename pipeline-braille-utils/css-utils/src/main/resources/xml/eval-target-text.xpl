@@ -11,7 +11,9 @@
     
     <p:input port="source" sequence="true">
         <p:documentation>
-            target-text() values in the input must be represented by css:text elements.
+            target-text() values in the input must be represented by css:text elements. Elements
+            that are referenced by a target-text() value must be indicated with a css:id attribute
+            that matches the css:text element's target attribute.
         </p:documentation>
     </p:input>
     

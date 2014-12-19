@@ -42,4 +42,22 @@
     </x:expect>
   </x:scenario>
   
+  <x:scenario label="test_03">
+    <x:context>
+      <body>
+        <note style="{{ display:inline; content:counter(footnote) }} :flow(footnote) {{ display:list-item }} }}">
+          foo
+        </note>
+      </body>
+    </x:context>
+    <x:expect label="result">
+      <body>
+        <note style="display:inline; content:counter(footnote)"
+              css:flow-footnote="display:list-item">
+          foo
+        </note>
+      </body>
+    </x:expect>
+  </x:scenario>
+  
 </x:description>
