@@ -23,8 +23,8 @@
         <p:documentation>
             For each element that is referenced somewhere, a css:id attribute that matches the
             xml:id or id attribute of the element is added in the output. No two elements will get
-            the same css:id attribute. css:id attributes already present in the input may be
-            overwritten. Elements that are being channeled into a named flow will not be labeled.
+            the same css:id attribute. Elements that are being channeled into a named flow will not
+            be labeled.
         </p:documentation>
     </p:output>
     

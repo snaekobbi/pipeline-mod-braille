@@ -46,7 +46,7 @@
                              [1]/@css:id"/>
     
     <p:label-elements match="*[@css:anchor]" attribute="css:anchor"
-                      label="for $anchor in @anchor return
+                      label="for $anchor in @css:anchor return
                              //*[@css:id=$anchor]/(self::css:box|following::css:box|descendant::css:box)
                              [not(ancestor-or-self::*/@css:flow)]
                              [1]/@css:id"/>

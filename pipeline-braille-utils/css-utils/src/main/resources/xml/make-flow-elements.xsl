@@ -41,7 +41,7 @@
         <xsl:copy>
             <xsl:sequence select="@* except (@style|@css:*)"/>
             <xsl:attribute name="css:flow" select="$flow"/>
-            <xsl:attribute name="css:anchor" select="$flow"/>
+            <xsl:attribute name="css:anchor" select="$anchor"/>
             <xsl:sequence select="css:style-attribute(@css:*[local-name()=concat('flow-',$flow)])"/>
             <xsl:apply-templates select="node() except (css:before|css:after)"/>
         </xsl:copy>

@@ -170,7 +170,9 @@
     </xsl:template>
     
     <xsl:template match="css:string[@name]">
-        <xsl:variable name="target" as="xs:string?" select="@target"/>
+        <xsl:variable name="target" as="xs:string?"
+                      select="if (@target) then @target else
+                              if (ancestor::*/@css:flow[not(.='normal')]) then ancestor::*/@css:anchor else ()"/>
         <xsl:variable name="target" as="element()?"
                       select="if ($target) then collection()//*[@css:id=$target][1] else ."/>
         <xsl:if test="$target">

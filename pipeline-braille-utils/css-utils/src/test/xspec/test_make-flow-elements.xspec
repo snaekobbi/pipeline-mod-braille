@@ -16,10 +16,10 @@
       <body>
         <note style="display:inline; content:counter(footnote)"
               css:before="content:'*'"
-              css:id="..."> foo </note>
+              css:id="d329e2"> foo </note>
         <note style="display:list-item"
               css:flow="footnote"
-              css:anchor="..."> foo </note>
+              css:anchor="d329e2"> foo </note>
       </body>
     </x:expect>
   </x:scenario>
