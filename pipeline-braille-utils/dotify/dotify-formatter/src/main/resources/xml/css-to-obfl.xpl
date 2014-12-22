@@ -41,33 +41,83 @@
     </p:for-each>
     
     <p:for-each>
+        <!--
+            Generate pseudo-elements
+        -->
         <css:parse-stylesheet/>
         <css:make-pseudo-elements/>
-        <css:parse-properties properties="content white-space display list-style-type
-                                          string-set counter-reset counter-set counter-increment"/>
+        <css:parse-properties properties="counter-reset counter-set counter-increment string-set"/>
+        <!--
+            Evaluate string-set
+        -->
+        <css:eval-string-set/>
+    </p:for-each>
+        
+    <!--
+        Extract named flows
+    -->
+    <p:for-each>
+        <css:parse-properties properties="display flow"/>
+        <css:make-flow-elements/>
+    </p:for-each>
+    <p:wrap wrapper="_" match="/*"/>
+    <css:flow-into name="_1"/>
+    <p:filter select="/_/*" name="_2"/>
+    
+    <!--
+        Generate pseudo-elements for named flows
+    -->
+    <p:for-each>
+        <p:iteration-source>
+            <p:pipe step="_1" port="flows"/>
+        </p:iteration-source>
+        <css:parse-stylesheet/>
+        <css:make-pseudo-elements/>
+    </p:for-each>
+    <p:identity name="_3"/>
+    
+    <p:for-each>
+        <p:iteration-source>
+            <p:pipe step="_2" port="result"/>
+            <p:pipe step="_3" port="result"/>
+        </p:iteration-source>
+        <css:parse-properties properties="content white-space display list-style-type"/>
+        <!--
+            Generate content
+        -->
         <css:parse-content/>
+        <!--
+            Identify significant white space
+        -->
+        <css:preserve-white-space/>
+        <!--
+            Generate boxes
+        -->
+        <css:make-boxes/>
+        <css:make-anonymous-inline-boxes/>
     </p:for-each>
     
     <css:label-targets/>
     
-    <p:for-each>
-        <css:eval-string-set/>
-        <css:preserve-white-space/>
-        <css:make-boxes/>
-        <css:make-anonymous-inline-boxes/>
-        <css:eval-target-text/>
-    </p:for-each>
-    
+    <!--
+        Evaluate counters
+    -->
     <css:eval-counter exclude-counters="page"/>
     
+    <!--
+        Evaluate target-text
+    -->
+    <css:eval-target-text/>
+    
+    <p:split-sequence test="/*[not(@css:flow)]" name="_4"/>
+    
+    <!--
+        Split whenever a named page is specified and whenever the page counter is set
+    -->
     <p:for-each>
         <css:parse-counter-set counters="page"/>
-        <!--
-            Split before and after @css:page and before @css:counter-set-page
-        -->
         <css:split split-before="*[@css:page or @css:counter-set-page]" split-after="*[@css:page]"/>
     </p:for-each>
-    
     <p:for-each>
         <!--
             Move @css:page and @css:counter-set-page to css:_ root element
@@ -91,15 +141,26 @@
                                      descendant::css:leader)]"
                   new-name="css:_"/>
     </p:for-each>
-    
-    <css:shift-id/>
     <css:repeat-string-set/>
     <css:shift-string-set/>
     
+    <p:identity name="_5"/>
+    <p:identity>
+        <p:input port="source">
+            <p:pipe step="_5" port="result"/>
+            <p:pipe step="_4" port="not-matched"/>
+        </p:input>
+    </p:identity>
+    
+    <css:shift-id/>
+    
     <p:for-each>
-        <p:unwrap match="css:_[not(@css:*) and parent::*]"/>
         <css:parse-properties properties="padding-left padding-right padding-top padding-bottom"/>
         <css:padding-to-margin/>
+    </p:for-each>
+    
+    <p:for-each>
+        <p:unwrap match="css:_[not(@css:*) and parent::*]"/>
         <css:make-anonymous-block-boxes/>
     </p:for-each>
     

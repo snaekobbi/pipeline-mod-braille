@@ -56,4 +56,22 @@
     </x:expect>
   </x:scenario>
   
+  <x:scenario label="test_03">
+    <x:call function="obfl:generate-layout-master">
+      <x:param select="'size: 15 15; @footnotes { border-top:⠒; max-height:10; content:flow(footnote) }'"/>
+      <x:param select="'x'"/>
+    </x:call>
+    <x:expect label="layout-master">
+      <layout-master xmlns="http://www.daisy.org/ns/2011/obfl" name="x" page-width="15" page-height="15" duplex="false">
+        <default-template>
+          <header/>
+          <footer/>
+        </default-template>
+        <page-area align="bottom" max-height="10" collection="footnote">
+          <before><leader pattern="⠒" position="100%" align="right"/></before>
+        </page-area>
+      </layout-master>
+    </x:expect>
+  </x:scenario>
+  
 </x:description>

@@ -24,8 +24,18 @@
     
     <xsl:template name="main">
         <obfl version="2011-1" xml:lang="und">
-            <xsl:for-each select="distinct-values(collection()/*/string(@css:page))">
+            <xsl:for-each select="distinct-values(collection()/*[not(@css:flow)]/string(@css:page))">
                 <xsl:sequence select="obfl:generate-layout-master(., pxi:generate-layout-master-name(.))"/>
+            </xsl:for-each>
+            <xsl:for-each select="collection()/*[@css:flow]">
+                <xsl:variable name="flow" as="xs:string" select="@css:flow"/>
+                <collection name="{$flow}">
+                    <xsl:for-each select="*">
+                        <item id="{@css:anchor}">
+                            <xsl:apply-templates select="."/>
+                        </item>
+                    </xsl:for-each>
+                </collection>
             </xsl:for-each>
             <xsl:apply-templates select="collection()/*[not(@css:flow)]"/>
         </obfl>
@@ -54,6 +64,7 @@
             <xsl:apply-templates select="@css:string-entry"/>
             <xsl:apply-templates select="@css:string-set"/>
             <xsl:apply-templates/>
+            <xsl:apply-templates select="@css:id" mode="anchor"/>
         </block>
     </xsl:template>
     
@@ -62,6 +73,7 @@
         <xsl:apply-templates select="@css:string-entry"/>
         <xsl:apply-templates select="@css:string-set"/>
         <xsl:apply-templates/>
+        <xsl:apply-templates select="@css:id" mode="anchor"/>
     </xsl:template>
     
     <xsl:template match="css:box/@type|
@@ -193,6 +205,13 @@
         <xsl:variable name="id" as="xs:string" select="."/>
         <xsl:if test="collection()//css:counter[@target=$id]">
             <xsl:attribute name="id" select="$id"/>
+        </xsl:if>
+    </xsl:template>
+    
+    <xsl:template match="css:box/@css:id" mode="anchor">
+        <xsl:variable name="id" as="xs:string" select="."/>
+        <xsl:if test="collection()/*[@css:flow]/*/@css:anchor=$id">
+            <anchor item="{$id}"/>
         </xsl:if>
     </xsl:template>
     

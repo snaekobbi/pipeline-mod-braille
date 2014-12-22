@@ -22,6 +22,8 @@
                       select="css:parse-declaration-list($rules[not(@selector)]/@declaration-list)"/>
         <xsl:variable name="size" as="xs:string"
                       select="($properties[@name='size'][css:is-valid(.)]/@value, css:initial-value('size'))[1]"/>
+        <xsl:variable name="page-width" as="xs:integer" select="xs:integer(number(tokenize($size, '\s+')[1]))"/>
+        <xsl:variable name="page-height" as="xs:integer" select="xs:integer(number(tokenize($size, '\s+')[2]))"/>
         <xsl:variable name="top-left" as="element()*">
             <xsl:apply-templates select="pxi:margin-content($rules, '@top-left')" mode="eval-content-list"/>
         </xsl:variable>
@@ -40,11 +42,22 @@
         <xsl:variable name="bottom-right" as="element()*">
             <xsl:apply-templates select="pxi:margin-content($rules, '@bottom-right')" mode="eval-content-list"/>
         </xsl:variable>
+        <xsl:variable name="footnotes-properties" as="element()*"
+                      select="css:parse-declaration-list($rules[@selector='@footnotes'][1]/@declaration-list)"/>
+        <xsl:variable name="footnotes-content" as="element()*"
+                      select="css:parse-content-list($footnotes-properties[@name='content'][1]/@value,())"/>
+        <xsl:variable name="footnotes-border-top" as="xs:string"
+                      select="($footnotes-properties[@name='border-top'][1]/@value,css:initial-value('border-top'))[1]"/>
+        <xsl:variable name="footnotes-max-height" as="xs:string"
+                      select="($footnotes-properties[@name='max-height'][1]/@value,css:initial-value('max-height'))[1]"/>
+        <xsl:variable name="footnotes-max-height" as="xs:integer"
+                      select="if ($footnotes-max-height='none')
+                              then $page-height idiv 2
+                              else xs:integer(number($footnotes-max-height))"/>
         <xsl:variable name="empty-string" as="element()">
             <string value=""/>
         </xsl:variable>
-        <layout-master name="{$name}" duplex="false"
-                            page-width="{tokenize($size, '\s+')[1]}" page-height="{tokenize($size, '\s+')[2]}">
+        <layout-master name="{$name}" duplex="false" page-width="{$page-width}" page-height="{$page-height}">
             <default-template>
                 <header>
                     <xsl:if test="exists(($top-left, $top-center, $top-right))">
@@ -73,6 +86,19 @@
                     </xsl:if>
                 </footer>
             </default-template>
+            <xsl:if test="$footnotes-content[not(self::css:flow[@from])]">
+                <xsl:message>only flow() function supported in footnotes area</xsl:message>
+            </xsl:if>
+            <xsl:if test="count($footnotes-content[self::css:flow[@from]]) > 1">
+                <xsl:message>not more than one flow() function supported in footnotes area</xsl:message>
+            </xsl:if>
+            <xsl:for-each select="$footnotes-content[self::css:flow[@from]][1]">
+                <page-area align="bottom" max-height="{$footnotes-max-height}" collection="{@from}">
+                    <xsl:if test="$footnotes-border-top!='none'">
+                        <before><leader pattern="{$footnotes-border-top}" position="100%" align="right"/></before>
+                    </xsl:if>
+                </page-area>
+            </xsl:for-each>
         </layout-master>
     </xsl:function>
     
