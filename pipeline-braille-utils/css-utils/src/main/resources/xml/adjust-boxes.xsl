@@ -7,26 +7,19 @@
     
     <xsl:include href="library.xsl"/>
     
-    <xsl:template match="/css:root">
+    <xsl:template match="/css:_">
         <xsl:copy>
-             <xsl:apply-templates select="@*|node()">
-                <xsl:with-param name="used-container-left-content-edge" select="0"/>
-                <xsl:with-param name="actual-container-left-content-edge" select="0"/>
-                <xsl:with-param name="used-container-right-content-edge" select="0"/>
-                <xsl:with-param name="actual-container-right-content-edge" select="0"/>
-                <xsl:with-param name="computed-container-text-indent" select="0"/>
-                <xsl:with-param name="actual-container-text-indent" select="0"/>
-             </xsl:apply-templates>
+            <xsl:apply-templates select="@*|node()"/>
         </xsl:copy>
     </xsl:template>
     
     <xsl:template match="css:box[@type='block']">
-        <xsl:param name="used-container-left-content-edge" as="xs:integer" required="yes"/>
-        <xsl:param name="actual-container-left-content-edge" as="xs:integer" required="yes"/>
-        <xsl:param name="used-container-right-content-edge" as="xs:integer" required="yes"/>
-        <xsl:param name="actual-container-right-content-edge" as="xs:integer" required="yes"/>
-        <xsl:param name="computed-container-text-indent" as="xs:integer" required="yes"/>
-        <xsl:param name="actual-container-text-indent" as="xs:integer" required="yes"/>
+        <xsl:param name="used-container-left-content-edge" as="xs:integer" select="0"/>
+        <xsl:param name="actual-container-left-content-edge" as="xs:integer" select="0"/>
+        <xsl:param name="used-container-right-content-edge" as="xs:integer" select="0"/>
+        <xsl:param name="actual-container-right-content-edge" as="xs:integer" select="0"/>
+        <xsl:param name="computed-container-text-indent" as="xs:integer" select="0"/>
+        <xsl:param name="actual-container-text-indent" as="xs:integer" select="0"/>
         <xsl:variable name="computed-margin-left" as="xs:integer" select="(@css:margin-left/xs:integer(number(.)),0)[1]"/>
         <xsl:variable name="computed-border-left-width" as="xs:integer" select="if (@css:border-left[not(.='none')]) then 1 else 0"/>
         <xsl:variable name="used-left-margin-edge" as="xs:integer" select="$used-container-left-content-edge"/>
