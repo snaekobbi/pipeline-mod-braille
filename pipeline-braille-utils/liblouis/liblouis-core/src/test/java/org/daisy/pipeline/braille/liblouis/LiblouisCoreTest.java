@@ -37,6 +37,7 @@ import static org.ops4j.pax.exam.CoreOptions.bundle;
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
+import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
@@ -47,9 +48,6 @@ public class LiblouisCoreTest {
 	
 	@Inject
 	LiblouisTableResolver resolver;
-	
-	@Inject
-	LiblouisTableProvider tableProvider;
 	
 	@Configuration
 	public Option[] config() {
@@ -66,7 +64,9 @@ public class LiblouisCoreTest {
 			bundlesAndDependencies("org.daisy.pipeline.calabash-adapter"),
 			brailleModule("common-utils"),
 			brailleModule("css-core"),
-			forThisPlatform(brailleModule("liblouis-native")),
+			// depends on https://github.com/liblouis/liblouis/pull/41
+			systemProperty("org.daisy.pipeline.liblouis.external").value("true"),
+			// forThisPlatform(brailleModule("liblouis-native")),
 			thisBundle(true),
 			bundle("reference:file:" + PathUtils.getBaseDir() + "/target/test-classes/table_paths/"),
 			junitBundles()
@@ -84,12 +84,6 @@ public class LiblouisCoreTest {
 	}
 	
 	@Test
-	public void testGetTableFromLocale() {
-		assertEquals(new URI[]{asURI("http://test/table_path_1/foobar.cti")}, tableProvider.get(parseLocale("foo")).iterator().next());
-		assertNull(Iterables.<URI[]>getFirst(tableProvider.get(parseLocale("bar")), null));
-	}
-	
-	@Test
 	public void testGetTranslatorFromQuery1() {
 		liblouis.get("(locale:foo)").iterator().next();
 	}
@@ -97,6 +91,11 @@ public class LiblouisCoreTest {
 	@Test
 	public void testGetTranslatorFromQuery2() {
 		liblouis.get("(table:'foobar.cti')").iterator().next();
+	}
+	
+	@Test
+	public void testGetTranslatorFromQuery3() {
+		liblouis.get("(locale:foo_BAR)").iterator().next();
 	}
 	
 	@Test

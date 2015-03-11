@@ -4,10 +4,13 @@ import java.io.File;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 
 import org.daisy.pipeline.braille.common.Provider;
 import org.daisy.pipeline.braille.common.ResourcePath;
@@ -18,35 +21,38 @@ import static org.daisy.pipeline.braille.common.util.Predicates.matchesGlobPatte
 import static org.daisy.pipeline.braille.common.util.URIs.asURI;
 import static org.daisy.pipeline.braille.common.util.URLs.asURL;
 
-public class LiblouisTableRegistry extends ResourceRegistry<LiblouisTablePath> implements LiblouisTableProvider, LiblouisTableResolver {
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+@Component(
+	name = "org.daisy.pipeline.braille.liblouis.LiblouisTableRegistry",
+	service = { LiblouisTableRegistry.class, LiblouisTableResolver.class }
+)
+public class LiblouisTableRegistry extends ResourceRegistry<LiblouisTablePath> implements LiblouisTableResolver {
 	
+	@Reference(
+		name = "LiblouisTablePath",
+		unbind = "unregister",
+		service = LiblouisTablePath.class,
+		cardinality = ReferenceCardinality.MULTIPLE,
+		policy = ReferencePolicy.DYNAMIC
+	)
 	@Override
 	protected void register(LiblouisTablePath path) {
 		super.register(path);
-		provider.invalidateCache();
+		applyPathChangeCallbacks();
 	}
 	
 	@Override
 	protected void unregister(LiblouisTablePath path) {
 		super.unregister(path);
-		provider.invalidateCache();
+		applyPathChangeCallbacks();
 	}
-	
-	/**
-	 * Try to find a table based on the given locale.
-	 * An automatic fallback mechanism is used: if nothing is found for
-	 * language-COUNTRY-variant, then language-COUNTRY is searched, then language.
-	 */
-	public Iterable<URI[]> get(Locale query) {
-		return provider.get(query);
-	}
-	
-	private final CachedProvider<Locale,URI[]> provider
-		= CachedProvider.<Locale,URI[]>newInstance(
-			LocaleBasedProvider.<URI[]>newInstance(
-				new DispatchingProvider<Locale,URI[]>() {
-					public Iterable<? extends Provider<Locale,URI[]>> dispatch() {
-						return paths.values(); }}));
 	
 	@Override
 	public URL resolve(URI resource) {
@@ -102,4 +108,35 @@ public class LiblouisTableRegistry extends ResourceRegistry<LiblouisTablePath> i
 			return asURI(resolve(resource));
 		}
 	}
+	
+	private Collection<Function<LiblouisTableRegistry,Void>> pathChangeCallbacks
+		= new ArrayList<Function<LiblouisTableRegistry,Void>>();
+	
+	public void onPathChange(Function<LiblouisTableRegistry,Void> callback) {
+		pathChangeCallbacks.add(callback);
+	}
+	
+	private void applyPathChangeCallbacks() {
+		for (Function<LiblouisTableRegistry,Void> f : pathChangeCallbacks)
+			try {
+				f.apply(this); }
+			catch (RuntimeException e) {
+				logger.error("Could not apply callback function " + f, e); }
+	}
+	
+	private static Function<LiblouisTablePath,Iterable<URI>> listTables = new Function<LiblouisTablePath,Iterable<URI>>() {
+		public Iterable<URI> apply(LiblouisTablePath path) {
+			return path.listTables();
+		}
+	};
+	
+	public Iterable<URI> listAllTables() {
+		return Iterables.<URI>concat(
+			Iterables.<LiblouisTablePath,Iterable<URI>>transform(
+				paths.values(),
+				listTables));
+	}
+	
+	private static final Logger logger = LoggerFactory.getLogger(LiblouisTableRegistry.class);
+	
 }
