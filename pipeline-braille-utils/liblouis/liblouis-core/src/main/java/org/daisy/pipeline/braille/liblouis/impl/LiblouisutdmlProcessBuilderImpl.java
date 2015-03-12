@@ -152,7 +152,7 @@ public class LiblouisutdmlProcessBuilderImpl implements Liblouisutdml {
 	}
 	
 	private String resolveTable(URI[] table) throws IOException {
-		File[] resolved = tableResolver.resolveTableList(table, null);
+		File[] resolved = tableResolver.resolveTable(table, null);
 		if (resolved == null)
 			throw new RuntimeException("Liblouis table " + table + " could not be resolved");
 		String[] files = new String[resolved.length];

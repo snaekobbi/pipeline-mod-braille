@@ -19,7 +19,7 @@ import org.daisy.common.xproc.calabash.XProcStepProvider;
 
 import static org.daisy.pipeline.braille.common.util.Files.asFile;
 import static org.daisy.pipeline.braille.common.util.URLs.decode;
-import static org.daisy.pipeline.braille.liblouis.LiblouisTablePath.tokenizeTableList;
+import static org.daisy.pipeline.braille.liblouis.LiblouisTablePath.tokenizeTable;
 import org.daisy.pipeline.braille.liblouis.Liblouisutdml;
 
 import com.xmlcalabash.core.XProcException;
@@ -205,7 +205,7 @@ public class TranslateFileProvider implements XProcStepProvider {
 				
 				URI[] table = null;
 				if (getOption(_table) != null)
-					table = tokenizeTableList(getOption(_table).getString());
+					table = tokenizeTable(getOption(_table).getString());
 				
 				// Write XML document to file
 				XdmNode xml = source.read();

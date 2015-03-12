@@ -7,6 +7,6 @@ import org.daisy.pipeline.braille.common.ResourceResolver;
 
 public interface LiblouisTableResolver extends ResourceResolver {
 	
-	public File[] resolveTableList(URI[] tableList, File base);
+	public File[] resolveTable(URI[] table, File base);
 	
 }

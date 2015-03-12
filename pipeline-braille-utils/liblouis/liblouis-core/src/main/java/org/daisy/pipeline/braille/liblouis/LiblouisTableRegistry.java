@@ -62,12 +62,12 @@ public class LiblouisTableRegistry extends ResourceRegistry<LiblouisTablePath> i
 		return resolved;
 	}
 	
-	public File[] resolveTableList(URI[] tableList, File base) {
-		File[] resolved = new File[tableList.length];
+	public File[] resolveTable(URI[] table, File base) {
+		File[] resolved = new File[table.length];
 		List<ResourcePath> paths = new ArrayList<ResourcePath>(this.paths.values());
 		paths.add(fileSystem);
-		for (int i = 0; i < tableList.length; i++) {
-			URI subTable = tableList[i];
+		for (int i = 0; i < table.length; i++) {
+			URI subTable = table[i];
 			if (base != null)
 				subTable = asURI(base).resolve(subTable);
 			for (ResourcePath path : paths) {
@@ -124,17 +124,17 @@ public class LiblouisTableRegistry extends ResourceRegistry<LiblouisTablePath> i
 				logger.error("Could not apply callback function " + f, e); }
 	}
 	
-	private static Function<LiblouisTablePath,Iterable<URI>> listTables = new Function<LiblouisTablePath,Iterable<URI>>() {
+	private static Function<LiblouisTablePath,Iterable<URI>> listTableFiles = new Function<LiblouisTablePath,Iterable<URI>>() {
 		public Iterable<URI> apply(LiblouisTablePath path) {
-			return path.listTables();
+			return path.listTableFiles();
 		}
 	};
 	
-	public Iterable<URI> listAllTables() {
+	public Iterable<URI> listAllTableFiles() {
 		return Iterables.<URI>concat(
 			Iterables.<LiblouisTablePath,Iterable<URI>>transform(
 				paths.values(),
-				listTables));
+				listTableFiles));
 	}
 	
 	private static final Logger logger = LoggerFactory.getLogger(LiblouisTableRegistry.class);

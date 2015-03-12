@@ -29,7 +29,7 @@ public class LiblouisTablePath extends BundledResourcePath {
 		lazyUnpack(context);
 	}
 	
-	public Iterable<URI> listTables() {
+	public Iterable<URI> listTableFiles() {
 		return Iterables.<URI,URI>transform(
 			resources,
 			new Function<URI,URI>() {
@@ -37,15 +37,15 @@ public class LiblouisTablePath extends BundledResourcePath {
 					return identifier.resolve(resource); }});
 	}
 	
-	public static URI[] tokenizeTableList(String tableList) {
+	public static URI[] tokenizeTable(String table) {
 		return Iterables.toArray(
 			Iterables.<String,URI>transform(
-				Splitter.on(',').split(tableList),
+				Splitter.on(',').split(table),
 				asURI),
 			URI.class);
 	}
 	
-	public static String serializeTableList(URI[] tableList) {
-		return join(tableList, ",");
+	public static String serializeTable(URI[] table) {
+		return join(table, ",");
 	}
 }

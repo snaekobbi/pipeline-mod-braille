@@ -35,8 +35,8 @@ import static org.daisy.pipeline.braille.common.util.Strings.join;
 import static org.daisy.pipeline.braille.common.util.Tuple2;
 
 import org.daisy.pipeline.braille.liblouis.Liblouis;
-import static org.daisy.pipeline.braille.liblouis.LiblouisTablePath.serializeTableList;
-import static org.daisy.pipeline.braille.liblouis.LiblouisTablePath.tokenizeTableList;
+import static org.daisy.pipeline.braille.liblouis.LiblouisTablePath.serializeTable;
+import static org.daisy.pipeline.braille.liblouis.LiblouisTablePath.tokenizeTable;
 import org.daisy.pipeline.braille.liblouis.LiblouisTableRegistry;
 import org.daisy.pipeline.braille.liblouis.LiblouisTableResolver;
 import org.daisy.pipeline.braille.liblouis.LiblouisTranslator;
@@ -95,9 +95,9 @@ public class LiblouisJnaImpl implements Liblouis {
 						return null; }});
 			final LiblouisTableResolver resolver = this.tableRegistry;
 			_tableResolver = new TableResolver() {
-				public File[] invoke(String tableList, File base) {
-					logger.debug("Resolving " + tableList + (base != null ? " against base " + base : ""));
-					File[] resolved = resolver.resolveTableList(tokenizeTableList(tableList), base);
+				public File[] invoke(String table, File base) {
+					logger.debug("Resolving " + table + (base != null ? " against base " + base : ""));
+					File[] resolved = resolver.resolveTable(tokenizeTable(table), base);
 					if (resolved != null)
 						logger.debug("Resolved to " + join(resolved, ","));
 					else
@@ -118,7 +118,7 @@ public class LiblouisJnaImpl implements Liblouis {
 		Louis.getLibrary().lou_indexTables(
 			Iterables.toArray(
 				Iterables.<URI,String>transform(
-					tableRegistry.listAllTables(),
+					tableRegistry.listAllTableFiles(),
 					toStringFunction()),
 			String.class));
 		indexed = true;
@@ -313,7 +313,7 @@ public class LiblouisJnaImpl implements Liblouis {
 								Iterable<LiblouisTranslator> translators = empty;
 								if (!"none".equals(hyphenator)) {
 									if ("liblouis".equals(hyphenator) || "auto".equals(hyphenator))
-										for (URI t : tokenizeTableList(table.getTable()))
+										for (URI t : tokenizeTable(table.getTable()))
 											if (t.toString().endsWith(".dic")) {
 												translators = Optional.<LiblouisTranslator>fromNullable(
 													new LiblouisTranslatorHyphenatorImpl(table)).asSet();
@@ -364,7 +364,7 @@ public class LiblouisJnaImpl implements Liblouis {
 		}
 		
 		private LiblouisTranslatorImpl(Translator translator, Hyphenator hyphenator) {
-			this.table = tokenizeTableList(translator.getTable());
+			this.table = tokenizeTable(translator.getTable());
 			this.translator = translator;
 			this.hyphenator = hyphenator;
 		}
