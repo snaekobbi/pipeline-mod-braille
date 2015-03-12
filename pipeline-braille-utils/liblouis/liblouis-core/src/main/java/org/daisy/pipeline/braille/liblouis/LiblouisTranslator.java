@@ -2,9 +2,10 @@ package org.daisy.pipeline.braille.liblouis;
 
 import java.net.URI;
 
+import org.daisy.pipeline.braille.common.BrailleTranslator;
 import org.daisy.pipeline.braille.common.CSSStyledTextTransform;
 
-public abstract class LiblouisTranslator implements CSSStyledTextTransform { // BrailleTranslator, Hyphenator
+public abstract class LiblouisTranslator implements CSSStyledTextTransform, BrailleTranslator { // Hyphenator
 	
 	public static abstract class Typeform {
 		public static final byte PLAIN = 0;

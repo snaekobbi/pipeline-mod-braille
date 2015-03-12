@@ -8,6 +8,7 @@ import javax.inject.Inject;
 
 import static org.daisy.pipeline.braille.common.util.URLs.asURL;
 import org.daisy.pipeline.braille.liblouis.Liblouis;
+import static org.daisy.pipeline.braille.liblouis.LiblouisTablePath.serializeTable;
 
 import static org.daisy.pipeline.pax.exam.Options.brailleModule;
 import static org.daisy.pipeline.pax.exam.Options.bundlesAndDependencies;
@@ -53,7 +54,12 @@ public class LiblouisTablesTest {
 	
 	@Test
 	public void testQueryTranslator() {
-		assertTrue(liblouis.get("(locale:nl_BE)").iterator().next().asLiblouisTable()[0].toString().endsWith("manifest/nl_BE"));
+		assertTrue(serializeTable(liblouis.get("(locale:nl_BE)").iterator().next().asLiblouisTable()).endsWith("manifest/nl_BE"));
+	}
+	
+	@Test
+	public void testUnicodeBraille() {
+		assertTrue(liblouis.get("(locale:nl_BE)").iterator().next().transform("foobar").matches("[\\s\\t\\n\u00a0\u00ad\u200b\u2800-\u28ff]*"));
 	}
 	
 	private void assertNotEmpty(String message, Iterable<?> iterable) {

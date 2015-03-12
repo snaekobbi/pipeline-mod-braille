@@ -100,33 +100,32 @@ public class LiblouisCoreTest {
 	
 	@Test
 	public void testTranslate() {
-		assertEquals("foobar", liblouis.get("(table:'foobar.cti')").iterator().next().transform("foobar"));
+		assertEquals("⠋⠕⠕⠃⠁⠗", liblouis.get("(table:'foobar.cti')").iterator().next().transform("foobar"));
 	}
 	
 	@Test
 	public void testTranslateStyled() {
-		assertEquals("foobar", liblouis.get("(table:'foobar.cti')").iterator().next().transform("foobar", Typeform.ITALIC));
+		assertEquals("⠋⠕⠕⠃⠁⠗", liblouis.get("(table:'foobar.cti')").iterator().next().transform("foobar", Typeform.ITALIC));
 	}
 	
 	@Test
 	public void testTranslateSegments() {
 		LiblouisTranslator translator = liblouis.get("(table:'foobar.cti')").iterator().next();
-		assertEquals(new String[]{"foo","bar"}, translator.transform(new String[]{"foo","bar"}));
-		assertEquals(new String[]{"foo","","bar"}, translator.transform(new String[]{"foo","","bar"}));
+		assertEquals(new String[]{"⠋⠕⠕","⠃⠁⠗"}, translator.transform(new String[]{"foo","bar"}));
+		assertEquals(new String[]{"⠋⠕⠕","","⠃⠁⠗"}, translator.transform(new String[]{"foo","","bar"}));
 	}
 	
 	@Test
 	public void testTranslateSegmentsFuzzy() {
 		LiblouisTranslator translator = liblouis.get("(table:'foobar.ctb')").iterator().next();
-		assertEquals(new String[]{"fu","bar"}, translator.transform(new String[]{"foo","bar"}));
-		assertEquals(new String[]{"fu","bar"}, translator.transform(new String[]{"fo","obar"}));
-		assertEquals(new String[]{"fu","","bar"}, translator.transform(new String[]{"fo","","obar"}));
-		assertEquals(new String[]{"x ", "x ", "x ", "x ", "x ", "x ", "x ", "x ", "x ", "x ",
-		                          "x ", "x ", "x ", "x ", "fu", "bar"},
+		assertEquals(new String[]{"⠋⠥","⠃⠁⠗"}, translator.transform(new String[]{"foo","bar"}));
+		assertEquals(new String[]{"⠋⠥","⠃⠁⠗"}, translator.transform(new String[]{"fo","obar"}));
+		assertEquals(new String[]{"⠋⠥","","⠃⠁⠗"}, translator.transform(new String[]{"fo","","obar"}));
+		assertEquals(new String[]{"⠭ ", "⠭ ", "⠭ ", "⠭ ", "⠭ ", "⠭ ", "⠭ ", "⠭ ", "⠭ ", "⠭ ",
+		                          "⠭ ", "⠭ ", "⠭ ", "⠭ ", "⠋⠥", "⠃⠁⠗"},
 		             translator.transform(new String[]{
 		                          "x ", "x ", "x ", "x ", "x ", "x ", "x ", "x ", "x ", "x ",
 		                          "x ", "x ", "x ", "x ", "fo", "obar"}));
-
 	}
 	
 	@Test
@@ -142,7 +141,7 @@ public class LiblouisCoreTest {
 	@Test
 	public void testTranslateAndHyphenateSomeSegments() {
 		LiblouisTranslator translator = liblouis.get("(table:'foobar.cti,foobar.dic')").iterator().next();
-		assertEquals(new String[]{"foo\u00ADbar ","foobar"},
+		assertEquals(new String[]{"⠋⠕⠕\u00AD⠃⠁⠗ ","⠋⠕⠕⠃⠁⠗"},
 		             translator.transform(new String[]{"foobar ","foobar"}, new String[]{"hyphens:auto","hyphens:none"}));
 	}
 }

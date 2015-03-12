@@ -8,7 +8,7 @@
       <x:param select="concat('(table: &quot;',resolve-uri('../resources/foobar.cti'),'&quot;)')"/>
       <x:param select="'foobar'"/>
     </x:call>
-    <x:expect label="result" select="('foobar')"/>
+    <x:expect label="result" select="('⠋⠕⠕⠃⠁⠗')"/>
   </x:scenario>
   
   <x:scenario label="test_02">
@@ -16,7 +16,7 @@
       <x:param select="concat('(table: &quot;',resolve-uri('../resources/foobar.cti'),'&quot;)')"/>
       <x:param select="('foo','bar')"/>
     </x:call>
-    <x:expect label="result" select="('foo','bar')"/>
+    <x:expect label="result" select="('⠋⠕⠕','⠃⠁⠗')"/>
   </x:scenario>
   
   <x:scenario label="test_03">
@@ -25,7 +25,7 @@
       <x:param select="'foobar'"/>
       <x:param select="'font-weight: bold'"/>
     </x:call>
-    <x:expect label="result" select="('foobar')"/>
+    <x:expect label="result" select="('⠋⠕⠕⠃⠁⠗')"/>
   </x:scenario>
   
   <x:scenario label="test_04">
@@ -34,7 +34,7 @@
       <x:param select="('foo','bar')"/>
       <x:param select="('','font-weight: bold')"/>
     </x:call>
-    <x:expect label="result" select="('foo','bar')"/>
+    <x:expect label="result" select="('⠋⠕⠕','⠃⠁⠗')"/>
   </x:scenario>
   
 </x:description>
