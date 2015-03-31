@@ -80,7 +80,7 @@ public class DotifyTranslatorProvider implements TextTransform.Provider<DotifyTr
 				public Iterable<DotifyTranslator> delegate(Locale locale) {
 					try {
 						BrailleTranslator translator = newTranslator(
-							Locales.toString(locale, '-'), BrailleTranslatorFactory.MODE_UNCONTRACTED);
+							locale.toLanguageTag(), BrailleTranslatorFactory.MODE_UNCONTRACTED);
 						translator.setHyphenating(false);
 						return Optional.<DotifyTranslator>of(new DotifyTranslator(translator)).asSet(); }
 					catch (TranslatorConfigurationException e) {
